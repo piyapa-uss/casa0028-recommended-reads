@@ -1,9 +1,33 @@
 import * as React from 'react';
-import Map from 'react-map-gl/maplibre';
+import {Map, Source, Layer} from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { plaqueData } from '../data/open-plaques-london-2023-11-10-filtered';
 
 export default function MapDisplay(props) {
-  return (
+  
+   const plaqueLayerStyle = {
+       id: 'plaques-layer',
+       type: 'circle',
+       source: 'plaques-data',
+       paint: {
+           'circle-radius': 6,
+           'circle-color': '#007cbf',
+           'circle-stroke-width': 2,
+           'circle-stroke-color': '#ffffff'
+       },
+   }  
+  
+const handleMapClick = (event) => {
+    const features = event.features;
+   if (features.length) {
+       const clickedFeature = features[0];
+       console.log(clickedFeature.properties);
+       console.log(clickedFeature.geometry);
+    }
+
+}
+
+    return (
     <Map
       initialViewState={{
         longitude: props.longitude,
@@ -12,6 +36,16 @@ export default function MapDisplay(props) {
       }}
       style={{width: '100%', height: '100vh'}}
       mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-    />
+      interactiveLayerIds={['plaques-layer']}
+      onClick={handleMapClick}
+   >
+       <Source
+          id="plaques-data"
+           type="geojson"
+          data={plaqueData}
+       >
+          <Layer {...plaqueLayerStyle} />
+       </Source>
+    </Map>
   );
 }
